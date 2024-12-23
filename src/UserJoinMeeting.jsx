@@ -2,20 +2,21 @@ import React, { useState } from "react";
 import axios from "axios";
 import StartMeeting from "./StartMeeting";
 
-const AdminStartLiveSession = () => {
+const UserJoinLiveSession = () => {
 	const [meetingDetails, setMeetingDetails] = useState(null);
 	const [courseId, setCourseId] = useState("672f600db2f3905e23f914e6");
 	const [cohortId, setCohortId] = useState("6732f2f47a0ce8a492cc36e1");
 
-	const handleStartSession = async () => {
+	const [errorMessage, setErrorMessage] = useState("");
+	const handleJoinSession = async () => {
 		try {
 			const response = await axios({
 				method: "GET",
-				url: `https://avi-lms-backend.onrender.com/api/v1/admins/courses/${courseId}/cohorts/${cohortId}/live-session/start`,
+				url: `https://avi-lms-backend.onrender.com/api/v1/courses/enrolled/${courseId}/cohorts/${cohortId}/live-session/join`,
 				headers: {
 					"Content-Type": "application/json",
 					Authorization:
-						"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ZDg3MTliNDk5YTUxMjVhNzY0Yjc3MiIsImVtYWlsIjoib3hsZWU4MTQ5QGdtYWlsLmNvbSIsImlhdCI6MTczNDk2MDY2NSwiZXhwIjoxNzM1MTMzNDY1fQ.m2Xr1Qw9M84KpPthBoM5-EEv_AmnYd0owDubmjmPcBU",
+						"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2YzVkNThmNTQxZjUyYjdhMzljOTI3NiIsImVtYWlsIjoidG9iaWVtbWEyMDBAZ21haWwuY29tIiwiaWF0IjoxNzM0OTYwOTU4LCJleHAiOjE3MzUxMzM3NTh9.599SM--V4mnY-18OBbdMR37GgXr6isANhMtbOji4bk8",
 				},
 			});
 			console.log(response.data.data);
@@ -23,13 +24,14 @@ const AdminStartLiveSession = () => {
 			return;
 		} catch (error) {
 			console.log("Error fetching meeting details:", error);
+			setErrorMessage(error.response.message);
 			return;
 		}
 	};
 
 	return (
 		<div>
-			<h2>Start Zoom Meeting</h2>
+			<h2>Join Zoom Meeting</h2>
 			<br />
 
 			<div>
@@ -55,23 +57,22 @@ const AdminStartLiveSession = () => {
 			<br />
 			<button
 				style={{ backgroundColor: "blue", color: "white" }}
-				onClick={handleStartSession}
+				onClick={handleJoinSession}
 			>
-				Start Session
+				Join Session
 			</button>
-
+			<div className="error-message-container"></div>
 			{meetingDetails && (
 				<StartMeeting
 					meetingNumber={meetingDetails.meeting_id}
-					userName="Admin"
+					userName="User "
 					signature={meetingDetails.signature}
 					apiKey={`${process.env.REACT_APP_ZOOM_API_KEY}`}
 					password={meetingDetails.password}
-					zak={meetingDetails.accessToken}
 				/>
 			)}
 		</div>
 	);
 };
 
-export default AdminStartLiveSession;
+export default UserJoinLiveSession;

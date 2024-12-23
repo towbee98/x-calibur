@@ -1,10 +1,14 @@
-import logo from "./logo.svg";
+import { Routes, Route } from "react-router-dom";
 import "./App.css";
 import AdminStartLiveSession from "./AdminStartLiveSession";
+import UserJoinLiveSession from "./UserJoinMeeting";
 function App() {
 	return (
 		<div className="App">
-			<AdminStartLiveSession />
+			<Routes>
+				<Route path={"/user"} element={<UserJoinLiveSession />} />
+				<Route path={"/admin"} element={<AdminStartLiveSession />} />
+			</Routes>
 		</div>
 	);
 }
