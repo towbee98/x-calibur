@@ -68,3 +68,93 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+```mermaid
+flowchart LR
+  %% Apps (frontends)
+  subgraph APPS[App Layer (Frontends)]
+    A1[Microsite]
+    A2[Startup Equity]
+    A3[OKR Planner]
+    A4[Matchmaking]
+    A5[Admin]
+  end
+
+  %% Shared packages (code libs in mono-repo)
+  subgraph PKG[Shared Packages]
+    P1[Auth Package (OAuth/JWT)]
+    P2[RBAC Package (policy)]
+    P3[API Client (typed)]
+    P4[DB Schema (Drizzle/Prisma)]
+    P5[UI/Utils]
+  end
+
+  %% Backend core
+  subgraph CORE[Backend Core]
+    G[API Gateway]
+    M[Middleware (Auth -> RBAC -> Validation)]
+    S1[User Service]
+    S2[Project Service]
+    S3[Integrations Service\n(Forecast, OnePager, HubSpot)]
+    S4[Payments Service]
+    S5[Admin Service]
+  end
+
+  %% External systems
+  subgraph EXT[External Services]
+    E1[Forecast Engine]
+    E2[One-Pager Engine]
+    E3[HubSpot CRM]
+    E4[Payment Provider]
+  end
+
+  %% Data stores & obs
+  D[(PostgreSQL)]
+  O[(Observability: Logs/Metrics/Traces)]
+  ST[(Object Storage: PDFs/Exports)]
+
+  %% App calls
+  A1-->G
+  A2-->G
+  A3-->G
+  A4-->G
+  A5-->G
+
+  %% Gateway pipeline
+  G-->M
+  M-->S1
+  M-->S2
+  M-->S3
+  M-->S4
+  M-->S5
+
+  %% Services to data
+  S1-->D
+  S2-->D
+  S3-->D
+  S4-->D
+  S5-->D
+  S3-->ST
+
+  %% Integrations
+  S3-->E1
+  S3-->E2
+  S3-->E3
+  S4-->E4
+  E4-->G  %% webhooks
+
+  %% Observability taps
+  G-->O
+  S1-->O
+  S2-->O
+  S3-->O
+  S4-->O
+  S5-->O
+Legend
+Auth Flow: App → Gateway (Auth Middleware) → Services. The packages/auth module is used by the gateway to issue and validate JWTs.
+RBAC: Policy is applied at the gateway middleware after authentication.
+Tenancy: All private requests carry userId, projectId, and a requestId for logging and multi-tenant safety.
+Webhooks: Payment provider webhooks hit POST /api/payments/webhook at the gateway.
+Public Routes: Marketing pages, login.
+Private Routes: All tools, admin dashboard.
+```
